@@ -12,8 +12,8 @@ from langdetect import detect
 from googletrans import Translator
 
 # Download necessary NLTK resources
-nltk.download('punkt')
-nltk.download('stopwords')
+nltk.download('punkt',quiet=True)
+nltk.download('stopwords',quiet=True)
 
 # Filepath for GloVe embeddings
 GLOVE_FILE = "glove.6B.100d.txt"
