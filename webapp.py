@@ -1,3 +1,5 @@
+import gdown
+import os
 import numpy as np
 import streamlit as st
 import nltk
@@ -13,17 +15,35 @@ from googletrans import Translator
 nltk.download('punkt')
 nltk.download('stopwords')
 
+# Filepath for GloVe embeddings
+GLOVE_FILE = "glove.6B.100d.txt"
+
+# Google Drive file ID for GloVe (replace with your actual file ID)
+GLOVE_FILE_ID = "192I71mfi3SwHiTf7HP40_aUbFHe-trMX"
+
+# Function to download GloVe embeddings
+def download_glove():
+    if not os.path.exists(GLOVE_FILE):
+        st.info("🔄 Downloading GloVe embeddings... This may take a few minutes.")
+        url = f"https://drive.google.com/uc?id={GLOVE_FILE_ID}"
+        gdown.download(url, GLOVE_FILE, quiet=False)
+        st.success("✅ Download complete!")
+
+# Download if file is missing
+download_glove()
+
 # Load GloVe word embeddings
 word_embeddings = {}
 try:
-    with open('glove.6B.100d.txt', encoding='utf-8') as f:
+    with open(GLOVE_FILE, encoding="utf-8") as f:
         for line in f:
             values = line.split()
             word = values[0]
-            coefs = np.asarray(values[1:], dtype='float32')
+            coefs = np.asarray(values[1:], dtype="float32")
             word_embeddings[word] = coefs
+    st.success("✅ GloVe embeddings loaded successfully!")
 except FileNotFoundError:
-    st.error("Error: 'glove.6B.100d.txt' not found! Please make sure it's in the correct directory.")
+    st.error(f"❌ Error: '{GLOVE_FILE}' not found! Download failed or check the file path.")
 
 # Function to remove stopwords
 def remove_stop_words(text):
@@ -81,14 +101,8 @@ def main():
     text = st.text_area("Enter your text here:")
 
     lang_options = {
-        'af': 'Afrikaans', 'sq': 'Albanian', 'am': 'Amharic', 'ar': 'Arabic', 'hy': 'Armenian', 'az': 'Azerbaijani',
-        'eu': 'Basque', 'bn': 'Bengali', 'bg': 'Bulgarian', 'ca': 'Catalan', 'zh-cn': 'Chinese (Simplified)',
-        'zh-tw': 'Chinese (Traditional)', 'hr': 'Croatian', 'cs': 'Czech', 'da': 'Danish', 'nl': 'Dutch',
-        'en': 'English', 'et': 'Estonian', 'fi': 'Finnish', 'fr': 'French', 'de': 'German', 'el': 'Greek',
-        'hi': 'Hindi', 'hu': 'Hungarian', 'id': 'Indonesian', 'it': 'Italian', 'ja': 'Japanese', 'kn': 'Kannada',
-        'ko': 'Korean', 'ml': 'Malayalam', 'mr': 'Marathi', 'ne': 'Nepali', 'no': 'Norwegian', 'pl': 'Polish',
-        'pt': 'Portuguese', 'ro': 'Romanian', 'ru': 'Russian', 'es': 'Spanish', 'sv': 'Swedish', 'ta': 'Tamil',
-        'te': 'Telugu', 'th': 'Thai', 'tr': 'Turkish', 'uk': 'Ukrainian', 'ur': 'Urdu', 'vi': 'Vietnamese'
+        'en': 'English', 'es': 'Spanish', 'fr': 'French', 'de': 'German', 'hi': 'Hindi',
+        'ru': 'Russian', 'zh-cn': 'Chinese (Simplified)', 'ja': 'Japanese', 'ar': 'Arabic'
     }
 
     trans_lang = st.selectbox("Select language for translation:", list(lang_options.values()))
